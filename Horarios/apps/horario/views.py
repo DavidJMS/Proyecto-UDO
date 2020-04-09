@@ -34,6 +34,16 @@ class HorarioParticular(APIView):
         serializer['detail'] = str("Has obtenido el horario correctamente")
         return Response(serializer, status=status.HTTP_200_OK)
 
+    def delete(self,request):
+        try:
+            acceso = horario_services.eliminar_horarios()
+        except ValueError as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        mensaje = str("Has eliminado todos los horarios")
+        return Response(mensaje,status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 def GenerarHorarioParticular(request):
     try:
@@ -75,8 +85,8 @@ class HorarioGeneral(APIView):
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        serializer = str("Has eliminado el horario exitosamente")
-        return Response(serializer, status=status.HTTP_200_OK)
+        mensaje = str("Has eliminado el horario exitosamente")
+        return Response(mensaje, status=status.HTTP_200_OK)
 
     def put(self,request,id):
         try:

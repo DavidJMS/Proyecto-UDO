@@ -112,11 +112,22 @@ def editar_horario_del_semestre(data:dict,id:int)->horario_models.HorarioGeneral
 
 def guardar_horario_particular(data:dict) -> horario_models.HorarioParticular:
     """
+        Servicio para guardar horarios generados por el sistema
+        
+        :parametro data: contiene la informacion de las materias las secciones y los horarios a guardar
+        :tipo de parametro data: dict
+        :raises: ValueError
+        :return: HorarioParticular
+
+        Validaciones implicitas:
+        1.El horario exista.
+        2.La fecha este en el formato correcto.
+        3.El tamaño del campo "carrera" sea el apropiado y este dentro de las opciones disponibles   
     """
     with transaction.atomic():
         try:
             new_schedule = horario_models.HorarioParticular.objects.create(
-                schedule = data
+                horario = data
             )
         except Exception as e:
                 raise ValueError(str('Hubo un error guardando el horario'))
@@ -125,12 +136,38 @@ def guardar_horario_particular(data:dict) -> horario_models.HorarioParticular:
 
 def obtener_horario_particular(id:int) -> horario_models.HorarioParticular:
     """
+        Servicio para obtener horarios generados por el sistema por medio de su id
+        
+        :parametro id: id del horario 
+        :tipo de parametro id: int
+        :raises: ValueError
+        :return: HorarioParticular
+
+        Validaciones implicitas:
+        1.El horario exista.
     """
     try:
-         schedule = horario_models.HorarioParticular.objects.get(id=id)
+         horario = horario_models.HorarioParticular.objects.get(id=id)
+    except horario_models.HorarioParticular.DoesNotExist:
+        raise ValueError(str("El horario no existe"))
     except Exception as e:
         raise ValueError(e)
-    return schedule
+    return horario
+
+
+def eliminar_horarios():
+    """
+        Servicio para eliminar todos los horarios generados por el sistema para un perido semestral
+        
+        :raises: ValueError
+    """
+    try:
+        with transaction.atomic():
+            horario_models.HorarioParticular.objects.all().delete()
+    except Exception as e:
+        raise ValueError("Hubo un error eliminando los horarios")
+
+
 
 def iniciate(materiasPorCursarDiccionario:dict):
     Horario = Pensum(materiasPorCursarDiccionario) 

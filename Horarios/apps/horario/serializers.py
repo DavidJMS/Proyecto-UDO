@@ -1,11 +1,8 @@
 import serpy
 
 class HorarioParticular(serpy.Serializer):
-    """
-        
-    """
-    id = serpy.Field()
-    schedule = serpy.Field()
+    id 		= serpy.Field()
+    horario = serpy.Field()
 		
 class HorarioGeneral(serpy.Serializer):
 	id 		= serpy.Field()
