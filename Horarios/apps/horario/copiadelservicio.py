@@ -245,11 +245,22 @@ class Pensum():
             else:
                 self.tamanio_minimo_grupo = 1
             while(self.tamanio_grupo >= self.tamanio_minimo_grupo-1):
+                print('----------Tamanio minimo grupo ---',self.tamanio_minimo_grupo)
+                print('---------------Esta es taanio grupo:',self.tamanio_grupo)
                 resultado = self.iniciar_calculo_combinaciones_grupo(self.tamanio_grupo, self.materias_por_cursar)
+                ##print('Esta es combinaciones_del_grupo pero en el while de generarTodasPosibilidades',resultado)
                 if len(resultado)!=0:
                     self.posibles_combinaciones.extend(resultado)
+                    #print('-------------------------- posiblesCombinaciones a la vista --------------')
+                    ##print(self.posibles_combinaciones)
                 self.tamanio_grupo-=1
                 self.cuentame+=1
+                #print('Cuentame papapapapaappaapa---',self.cuentame)
+                #print('Cuentame papapapapaappaapa--- tamanioGrupo--: ',self.tamanio_grupo,'Tmbien es : minimo',self.tamanioMinimoGrupo)
+            print(self.tamanio_minimo_grupo,'',self.tamanio_grupo)
+            #print('----------Salio del while de generarTodasPosibilidades----------------')
+            ##print(self.posibles_combinaciones)
+            #print('------------------ tamano ----------: ',len(self.posibles_combinaciones))
             return 0
             if(len(self.posibles_combinaciones) == 0):
                 self.suma_creditos= 0
@@ -266,6 +277,7 @@ class Pensum():
         """
             Función para calcular el total de combinaciones.
         """
+        #print('Entro en iniciar_calculo_combinaciones_grupo')
         combinacion_base = list(range(tamanio))
         for i in combinacion_base:
             combinacion_base[i] = self.materias_por_cursar[i]
@@ -273,38 +285,54 @@ class Pensum():
         return resultado
 
     def calcular_combinaciones_grupo(self, combinacion_base:list , tamanio:int, materias_por_cursar:list):
+        print('Entro en calcular_combinaciones_grupo')
         combinaciones_del_grupo = []
         combinacion = combinacion_base
         if self.comprueba_creditos_y_electivas(combinacion):
             combinaciones_del_grupo.append(combinacion.copy())
         total_combinaciones = self.numero_combinaciones_grupo(len(materias_por_cursar), tamanio)
+        print('Esta es total_combinaciones: ',total_combinaciones)
         self.tamanio_new_combinacion = tamanio
         for i in range(total_combinaciones):
+            print('Este el el tamanio-------------------------------------',tamanio)
             if tamanio == self.tamanio_new_combinacion:
                 self.tamanio_new_combinacion -=1
                 continue
             combinacion = self.new_combinacion(combinacion, materias_por_cursar, tamanio)
+            print('Este es el total de combinaciones:',total_combinaciones,'Esta es la combinacion: ',i)
             self.tamanio_new_combinacion -=1
             if self.tamanio_new_combinacion <= 0:
                 self.tamanio_new_combinacion == tamanio
             if self.comprueba_creditos_y_electivas(combinacion):
                 combinaciones_del_grupo.append(combinacion.copy())
+        print('Va a salir de calcular_combinaciones_grupo')
+        #print('Minimo creditos',self.minimo_creditos)
+        #print(combinaciones_del_grupo)
         return combinaciones_del_grupo
 
     def comprueba_creditos_y_electivas(self, combinacion:list)->bool:
+        #print('Entro en comprueba_creditos_y_electivas')
         suma = 0
         electivas_incluidas = 0
+        #print('Y entramos en el el for de comprueba_creditos_y_electivas')
         for i,materia in enumerate(combinacion):
+            #print('Esta es el credito en esa materia que se itera',materia['creditos'])
             suma = suma + materia['creditos']
             if(materia['semestre'] == 99 or materia['semestre'] ==88 or materia['semestre'] == 77):
                 electivas_incluidas +=1
+            #print('Esta es suma: ',suma)
+            #print(self.limite_creditos)
             if suma > self.limite_creditos:
                 return False
         if (suma < self.minimo_creditos or electivas_incluidas != len(self.electivas_elejidas)):
             return False
+        #print('va a salir de comprueba_creditos_y_electivas')
         return True
 
     def numero_combinaciones_grupo(self, m:int, n:int)->int:
+        #print('Entro en numero_combinaciones_grupo')
+        #print('Este ese el valor de m ---------: ',m)
+        #print('Este ese el valor de n ---------: ',n)
         return int(self.cal_factorial(m) / (self.cal_factorial(n)*self.cal_factorial(m-n)))
 
     def cal_factorial(self, n:int)->int:
@@ -313,20 +341,29 @@ class Pensum():
         return n*self.cal_factorial(n-1)
     
     def new_combinacion(self, combinacion:list, materias_por_cursar:list, tamanio:int):
+        print('Entro en new_combinacion')
         new_combinacion = combinacion 
         posicion = tamanio
+        #print('Esta es posicion antes de reducirla',posicion)
         posicion_superior_materia = 0
         opcion_final = False
+        print('Esta es posicion_superior_materia antes del while')
+        #print('Esta es combinacion','\n',combinacion)
         while(opcion_final == False):
             posicion -=1
+            print(posicion)
             try:
                 posicion_superior_materia = materias_por_cursar.index(combinacion[posicion])+1
             except IndexError:
-                pass
+                print('EL PRIMER TRY DENTRO DEL WHILE DIO ERROR')
+            print('Esta es posicion en el whie:',posicion,'Esta es posicion_superior_materia en el while',posicion_superior_materia,'Esta es tamanio_new_combinacion',self.tamanio_new_combinacion)
             try:
                 opcion_final = type(materias_por_cursar[posicion_superior_materia + ((tamanio - 1) - posicion)])
             except IndexError:
+                print('Entro en el index error de la nueva condicion')
                 pass
+        print('Salio del while')
+        print('Esta es posicion superior:',posicion_superior_materia,'Esta es posicion:',posicion)
         if (posicion<=0):
             posicion = posicion * -1
         if (posicion_superior_materia<0):
@@ -335,11 +372,14 @@ class Pensum():
             try:
                 new_combinacion[i] = materias_por_cursar[posicion_superior_materia]
             except IndexError:
-                pass
+                print('ERROR EN EL FOR INDICE FUERA DEL RANGO ESTABLECIDO; PRIMER TRY')
+            #print('Este es new_combinacion[i]:','\n',new_combinacion[i])
             try:
                 posicion_superior_materia = materias_por_cursar.index(new_combinacion[i])+1
             except IndexError:
-                pass        
+                print('ERROR EN EL FOR INDICE FUERA DEL RANGO ESTABLECIDO; PRIMER TRY')
+            #print('Esta es posicion_superior_materia: ',posicion_superior_materia)
+        #print('Esta es new_combinacion:---------------------------------------------------',new_combinacion)
         return new_combinacion 
 
     def asigna_puntuacion(self)->list:
@@ -443,10 +483,13 @@ class Horario():
     def cargar_horario(self,id):
         horarios_generales = horario_models.HorarioGeneral.objects.get(id=5)
         horarios_generales_serializados = horario_serializers.HorarioGeneral(horarios_generales,many=False).data
+        #print('----------')
         horarios_generales_json = horarios_generales_serializados['horario'].replace("\'", "\"")
         self.horarios = json.loads(horarios_generales_json)
+        #print(len(self.horarios),type(self.horarios))
 
     def comprobar_combinacion_horario(self,combinacion:list)->bool:
+        print('entro en comprobarCombinacionHorario')
         all_materias_secciones = []
         for indice, materia in enumerate(combinacion):
             codifo_materia = materia['codigo']
